@@ -1,0 +1,19 @@
+#!/bin/bash
+if [[ $EUID -ne 0 ]]; then
+    echo "This script must be run as root" 
+    exit 1
+fi
+
+if ! [ -x "$(command -v reflector)" ]; then
+    echo "This script requires reflector"
+    exit 1
+fi
+
+if [[ -e /etc/pacman.d/mirrorlist.pacnew ]]; then
+    mv -v /etc/pacman.d/mirrorlist{,.old}
+    mv -v /etc/pacman.d/mirrorlist{.pacnew,}
+fi 
+cp -v /etc/pacman.d/mirrorlist{,.bak}
+reflector -a24 -c "United States" --sort rate > /etc/pacman.d/mirrorlist
+pacman -Syy
+
